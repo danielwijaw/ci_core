@@ -1,64 +1,47 @@
-<?php
-defined('BASEPATH') OR exit('No direct script access allowed');
-?><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8">
-<title>Database Error</title>
-<style type="text/css">
 
-::selection { background-color: #E13300; color: white; }
-::-moz-selection { background-color: #E13300; color: white; }
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-body {
-	background-color: #fff;
-	margin: 40px;
-	font: 13px/20px normal Helvetica, Arial, sans-serif;
-	color: #4F5155;
-}
+  <title>Error - DB</title>
 
-a {
-	color: #003399;
-	background-color: transparent;
-	font-weight: normal;
-}
+  <!-- Custom fonts for this template-->
+  <link href="http://<?php echo $_SERVER['SERVER_NAME'] ?>/public/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 
-h1 {
-	color: #444;
-	background-color: transparent;
-	border-bottom: 1px solid #D0D0D0;
-	font-size: 19px;
-	font-weight: normal;
-	margin: 0 0 14px 0;
-	padding: 14px 15px 10px 15px;
-}
+  <!-- Custom styles for this template-->
+  <link href="http://<?php echo $_SERVER['SERVER_NAME'] ?>/public/css/sb-admin-2.min.css" rel="stylesheet">
 
-code {
-	font-family: Consolas, Monaco, Courier New, Courier, monospace;
-	font-size: 12px;
-	background-color: #f9f9f9;
-	border: 1px solid #D0D0D0;
-	color: #002166;
-	display: block;
-	margin: 14px 0 14px 0;
-	padding: 12px 10px 12px 10px;
-}
-
-#container {
-	margin: 10px;
-	border: 1px solid #D0D0D0;
-	box-shadow: 0 0 8px #D0D0D0;
-}
-
-p {
-	margin: 12px 15px 12px 15px;
-}
-</style>
 </head>
-<body>
-	<div id="container">
-		<h1><?php echo $heading; ?></h1>
-		<?php echo $message; ?>
-	</div>
+
+<body class="bg-gradient-primary">
+
+  <div class="container">
+
+    <!-- Outer Row -->
+    <div class="row justify-content-center">
+
+      <div class="col-xl-10 col-lg-12 col-md-9">
+
+        <div style="background:white" class="o-hidden border-0 shadow-lg my-5">
+            <div class="text-center">
+                <div class="error mx-auto" data-text="404">DB</div>
+                <p class="lead text-gray-800 mb-5"><?php echo $heading; ?></p>
+                <p class="text-gray-500 mb-0"><?php echo $message; ?></p>
+                <a href="http://<?php echo $_SERVER['SERVER_NAME'] ?>">&larr; Back to Dashboard</a>
+            </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
 </body>
+
 </html>

@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 require_once APPPATH . 'libraries/API_Controller.php';
 
-class Frontend extends API_Controller {
+class frontend extends API_Controller {
 
     //  Core Ajax
 	public function index()
