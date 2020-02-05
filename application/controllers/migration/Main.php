@@ -1,0 +1,241 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+require_once APPPATH . 'libraries/API_Controller.php';
+
+class main extends API_Controller {
+
+    public function __construct(){
+        parent::__construct();
+    }
+
+	public function index()
+	{
+		header("Access-Control-Allow-Origin: *");
+
+		// API Configuration
+		$this->_apiConfig([
+			'methods' => ['GET'],
+        ]);
+
+        $result = [
+            '1. ' => base_url('/migration/main/connection'),
+            '2. ' => base_url('/migration/main/generate'),
+            '3. ' => base_url('/migration/main/crud_generator'),
+            '4. ' => 'Happy Code',
+        ];
+
+		// return data
+		$this->api_return(
+			[
+				'status' => true,
+				"result" => $result,
+			],
+		200);
+	}
+
+	public function connection()
+	{
+        $this->load->database();
+		header("Access-Control-Allow-Origin: *");
+
+		// API Configuration
+		$this->_apiConfig([
+			'methods' => ['GET'],
+        ]);
+
+		// return data
+		$this->api_return(
+			[
+				'status' => true,
+				"result" => "Connection To Database Oke",
+			],
+		200);
+	}
+
+	public function generate()
+	{
+        $this->load->database();
+		header("Access-Control-Allow-Origin: *");
+
+		$sql = $this->db->query(
+			"
+			CREATE TABLE `tm_data` (
+			  `child_id` int NOT NULL AUTO_INCREMENT,
+			  `child_value` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+			  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			  `created_by` int NOT NULL DEFAULT '".date('dmY')."',
+			  `updated_at` datetime NOT NULL,
+			  `updated_by` int NOT NULL,
+			  `deleted_at` datetime NOT NULL,
+			  `deleted_by` int NOT NULL,
+			  PRIMARY KEY (`child_id`),
+			  CONSTRAINT `tm_data_chk_1` CHECK (json_valid(`child_value`))
+			) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1"
+		);
+		if($sql){
+			$sql_2 = $this->db->query(
+				"
+				CREATE TABLE `tm_attribute` (
+				`attribute_id` int NOT NULL AUTO_INCREMENT,
+				`attribute_data` longtext NOT NULL,
+				`created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+				`created_by` int NOT NULL DEFAULT '".date('dmY')."',
+				`updated_at` datetime NOT NULL,
+				`updated_by` int NOT NULL,
+				`deleted_at` datetime NOT NULL,
+				`deleted_by` int NOT NULL,
+				PRIMARY KEY (`attribute_id`)
+				) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1"
+			);
+			if($sql_2){
+				$result = "Generating table tm_data & tm_attribute Okay";
+			}else{
+				$result = "Generating table tm_data Okay";
+			}
+		}else{
+			$result = "Generating table tm_data Not Okay";
+		}
+
+		// API Configuration
+		$this->_apiConfig([
+			'methods' => ['GET'],
+        ]);
+
+		// return data
+		$this->api_return(
+			[
+				'status' => true,
+				"result" => $result,
+			],
+		200);
+	}
+
+	public function crud_generator()
+	{
+		if(!isset($_GET['lets_go'])){
+			echo "<div align=\"center\">";
+			echo "<h3>CRUD GENERATOR LIT VERSION</h3>";
+			echo "<form method=\"GET\" action=\"".base_url('/migration/main/crud_generator')."\">";
+			echo "<input type=\"hidden\" name=\"lets_go\" value=\"true\">";
+			echo "<input type=\"text\" name=\"category\" placeholder=\"Masukan Jenis Category\">";
+			echo "<br/><br/>";
+			echo "<input type=\"number\" name=\"key\" placeholder=\"Masukan Jumlah Key\">";
+			echo "<br/><br/>";
+			echo "<input type=\"submit\" value=\"Generate\">";
+			echo "<div>";
+		}else{
+			$this->load->database();
+			header("Access-Control-Allow-Origin: *");
+
+			// INSERTING DATA
+			$insert['k0'] = 'category';
+			$insert['k1'] = strtolower($_GET['category']);
+			$insert['k1'] = str_replace(" ","_",$insert['k1']);
+			$insert['k2'] = $_GET['category'];
+
+			$data = array(
+				'child_value' 	=> json_encode($insert),
+				'created_by' 	=> '777999777'
+			);
+			
+			$insert_category = $this->db->insert('tm_data', $data);
+
+			if($insert_category){
+				$return = "Success Insert Category Menu First on ".$_GET['category']." And Doing Sample Data";
+
+				// INSERTING DATA SAMPLE
+				$insert_data['k0']		= $insert['k1'];
+				$insert_data['k0_text']	= $_GET['category'];
+				for($x=1 ;$x <= $_GET['key']; $x++){
+					// echo $x;
+					$insert_data["k".$x] 			= "01";
+					$insert_data["k".$x."_text"] 	= "01";
+				}
+
+				$data_sample = array(
+					'child_value' 	=> json_encode($insert_data),
+					'created_by' 	=> '777999777'
+				);
+				
+				$insert_sample = $this->db->insert('tm_data', $data_sample);
+
+				if($insert_sample){
+					$return = "Success Insert Category Menu First on ".$_GET['category'].", Success Insert Sample Data And Doing Generate File";
+
+					// Creating Directory First
+					$oldmask = umask(000);
+					$mkdir_controller_frontend = mkdir(APPPATH."/controllers/frontend/".$insert_data['k0'], 0775, true);
+					chmod(APPPATH."/controllers/frontend/".$insert_data['k0'], 0777);
+					umask($oldmask);
+					if($mkdir_controller_frontend){
+						$return = 'Create Directory Controller Frontend Done';
+						$oldmask = umask(000);
+						$mkdir_controller_backend = mkdir(APPPATH."/controllers/backend/".$insert_data['k0'], 0775);
+						umask($oldmask);
+						if($mkdir_controller_backend){
+							$return = 'Create Directory Controller Backend Done';
+							$oldmask = umask(000);
+							$mkdir_views = mkdir(APPPATH."/views/".$insert_data['k0'], 0775);
+							umask($oldmask);
+							if($mkdir_views){
+								$return = 'Create Directory Views Done';
+									// Created Controller Frontend
+									$string = "<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+require_once APPPATH . 'libraries/API_Controller.php';
+
+class ".$insert_data['k0']." extends API_Controller {
+
+	//  Core Ajax
+	public function index()
+	{
+		\$data = [
+			'root_data' => '/frontend/".$insert_data['k0']."/main'
+		];
+		\$this->load->view('frontend/".$insert_data['k0']."/index', \$data);
+	}
+	
+	// Ajax
+	public function main(){
+		\$this->load->view('frontend/".$insert_data['k0']."/main');
+	}
+
+}";
+									$my_file = APPPATH."/controllers/frontend/".$insert_data['k0']."/".$insert_data['k0'].".php";
+									$handle = fopen($my_file, 'w') or die('Cannot open file:  '.$my_file);
+									$file_controller_frontend = fwrite($handle, $string);
+
+									$return = 'Create Frontend Controllers Done';
+							}else{
+								$return = 'Create Directory Views Failed';
+							}
+						}else{
+							$return = 'Create Directory Controller Frontend Done But Controller Backend Failed';
+						}
+					}else{
+						$return = 'Create Directory Controller Frontend Failed';
+					}
+				}else{
+					$return = "Success Insert Category Menu First on ".$_GET['category']." And Failed Insert Sample Data";
+				}
+			}else{
+				$return = "Failed Insert Category Menu First on ".$_GET['category'];
+			}
+
+			// API Configuration
+			$this->_apiConfig([
+				'methods' => ['GET'],
+			]);
+
+			// return data
+			$this->api_return(
+				[
+					'status' => true,
+					"result" => $return,
+				],
+			200);
+		}
+	}
+}
