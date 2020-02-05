@@ -233,7 +233,7 @@ require_once APPPATH . 'libraries/API_Controller.php';
 
 class ".$insert_data['k0']." extends API_Controller {
 
-    function __contruct(){
+    function __construct(){
         parent::__construct();
         \$this->load->database();
     }
@@ -246,7 +246,25 @@ class ".$insert_data['k0']." extends API_Controller {
 		// API Configuration
 		\$this->_apiConfig([
 			'methods' => ['GET'],
-        ]);
+		]);
+		
+		if(isset(\$_GET['draw'])){
+            \$_GET['draw'] = \$_GET['draw'];
+        }else{
+            \$_GET['draw'] = \"\";
+        }
+
+        if(isset(\$_GET['start'])){
+            \$_GET['start'] = \$_GET['start'];
+        }else{
+            \$_GET['start'] = \"0\";
+        }
+
+        if(isset(\$_GET['length'])){
+            \$_GET['length'] = \$_GET['length'];
+        }else{
+            \$_GET['length'] = \"10\";
+        }
 
         if(isset(\$_GET['search']['value'])){
             \$search = \"and JSON_SEARCH(UPPER(tm_data.child_value), 'all', UPPER('%\".\$_GET['search']['value'].\"%')) IS NOT NULL\";
@@ -278,7 +296,7 @@ class ".$insert_data['k0']." extends API_Controller {
 				) as k".$x.",
 				";
 			}
-			$string .="`text`
+			$string .="'text'
         FROM
             tm_data 
         WHERE
@@ -326,6 +344,139 @@ class ".$insert_data['k0']." extends API_Controller {
 			],
 		200);
 	}
+
+	public function delete(\$id)
+	{
+        \$this->load->helper('api_helper');
+        \$this->load->helper('cookie');
+		header(\"Access-Control-Allow-Origin: *\");
+
+		// API Configuration
+		\$this->_apiConfig([
+			'methods' => ['GET'],
+        ]);
+        
+        \$cookie = get_cookie(\"cookielogin\");
+		\$cookie = JSON_DECODE(\$cookie, true);
+		
+		if(!isset(\$cookie)){
+			\$cookie = [
+				'id' => '9191919191'
+			];
+		}
+
+        \$this->db->set('deleted_by', my_simple_crypt(\$cookie['id'], 'd'));
+        \$this->db->set('deleted_at', date('Y-m-d H:i:s'));
+        \$this->db->where('child_id', my_simple_crypt(\$id,'d'));
+        \$result = \$this->db->update('tm_data');
+
+        if(\$result){
+            \$status = \"Delete Data Success\";
+            \$json = \$result;
+            redirect('/frontend/".$insert_data['k0']."/index');
+        }else{
+            \$status = false;
+            \$json = \"Failed Delete Data\";
+        }
+
+        // return data
+		\$this->api_return(
+			[
+				'status' => \$status,
+				\"results\" => \$json,
+			],
+		200);
+	}
+	
+	public function create(){
+        header(\"Access-Control-Allow-Origin: *\");
+        \$this->load->helper('cookie');
+        \$this->load->helper('api_helper');
+
+		// API Configuration
+		\$this->_apiConfig([
+			'methods' => ['POST'],
+        ]);
+
+        \$cookie = get_cookie(\"cookielogin\");
+		\$cookie = JSON_DECODE(\$cookie, true);
+		
+		if(!isset(\$cookie)){
+			\$cookie = [
+				'id' => '9191919191'
+			];
+		}
+
+        \$data = array(
+            'child_value' => JSON_ENCODE(\$_POST),
+            'created_by' => my_simple_crypt(\$cookie['id'], 'd')
+        );
+    
+        \$insert = \$this->db->insert('tm_data', \$data);
+
+        if(\$insert){
+            \$status = true;
+            \$json = \"Success Insert Data\";
+            redirect('/frontend/".$insert_data['k0']."/index');
+        }else{
+            \$status = false;
+            \$json = \"Failed Inserting Data\";
+        }
+
+        // return data
+		\$this->api_return(
+			[
+				'status' => \$status,
+				\"results\" => \$json,
+			],
+		200);
+	}
+	
+	public function update(\$id){
+        header(\"Access-Control-Allow-Origin: *\");
+        \$this->load->helper('cookie');
+        \$this->load->helper('api_helper');
+
+		// API Configuration
+		\$this->_apiConfig([
+			'methods' => ['POST'],
+        ]);
+
+        \$cookie = get_cookie(\"cookielogin\");
+		\$cookie = JSON_DECODE(\$cookie, true);
+		
+		if(!isset(\$cookie)){
+			\$cookie = [
+				'id' => '9191919191'
+			];
+		}
+
+        \$data = array(
+            'child_value' => JSON_ENCODE(\$result),
+            'updated_at' => date('Y-m-d H:i:s'),
+            'updated_by' => my_simple_crypt(\$cookie['id'], 'd')
+        );
+    
+        \$this->db->where('child_id', my_simple_crypt(\$id, 'd'));
+        \$update = \$this->db->update('tm_data', \$data);
+
+        if(\$insert){
+            \$status = true;
+            \$json = \"Success Update Data\";
+            redirect('/frontend/".$insert_data['k0']."/index');
+        }else{
+            \$status = false;
+            \$json = \"Failed Update Data\";
+        }
+
+        // return data
+		\$this->api_return(
+			[
+				'status' => \$status,
+				\"results\" => \$json,
+			],
+		200);
+    }
 
 }";
 
