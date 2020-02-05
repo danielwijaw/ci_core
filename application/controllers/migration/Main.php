@@ -163,25 +163,15 @@ class main extends API_Controller {
 				if($insert_sample){
 					$return = "Success Insert Category Menu First on ".$_GET['category'].", Success Insert Sample Data And Doing Generate File";
 
-					// Creating Directory First
-					$oldmask = umask(000);
-					$mkdir_controller_frontend = mkdir(APPPATH."/controllers/frontend/".$insert_data['k0'], 0775, true);
-					chmod(APPPATH."/controllers/frontend/".$insert_data['k0'], 0777);
-					umask($oldmask);
-					if($mkdir_controller_frontend){
-						$return = 'Create Directory Controller Frontend Done';
-						$oldmask = umask(000);
-						$mkdir_controller_backend = mkdir(APPPATH."/controllers/backend/".$insert_data['k0'], 0775);
-						umask($oldmask);
-						if($mkdir_controller_backend){
-							$return = 'Create Directory Controller Backend Done';
-							$oldmask = umask(000);
-							$mkdir_views = mkdir(APPPATH."/views/".$insert_data['k0'], 0775);
-							umask($oldmask);
-							if($mkdir_views){
-								$return = 'Create Directory Views Done';
-									// Created Controller Frontend
-									$string = "<?php
+					// Creating Directory Views
+					$mkdir_views = mkdir(APPPATH."/views/".$insert_data['k0'], 01777);
+					chmod(APPPATH."/views/".$insert_data['k0'], 01777);
+
+					if($mkdir_views){
+						$return = 'Create Directory Views Done';
+
+						// Created Controller Frontend
+						$string = "<?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 require_once APPPATH . 'libraries/API_Controller.php';
@@ -196,26 +186,49 @@ class ".$insert_data['k0']." extends API_Controller {
 		];
 		\$this->load->view('frontend/".$insert_data['k0']."/index', \$data);
 	}
+
+	public function create()
+	{
+		\$data = [
+			'root_data' => '/frontend/".$insert_data['k0']."/created'
+		];
+		\$this->load->view('frontend/".$insert_data['k0']."/index', \$data);
+	}
+
+	public function update()
+	{
+		\$data = [
+			'root_data' => '/frontend/".$insert_data['k0']."/updated'
+		];
+		\$this->load->view('frontend/".$insert_data['k0']."/index', \$data);
+	}
 	
 	// Ajax
 	public function main(){
 		\$this->load->view('frontend/".$insert_data['k0']."/main');
 	}
 
-}";
-									$my_file = APPPATH."/controllers/frontend/".$insert_data['k0']."/".$insert_data['k0'].".php";
-									$handle = fopen($my_file, 'w') or die('Cannot open file:  '.$my_file);
-									$file_controller_frontend = fwrite($handle, $string);
+	public function created(){
+		\$this->load->view('frontend/".$insert_data['k0']."/create');
+	}
 
-									$return = 'Create Frontend Controllers Done';
-							}else{
-								$return = 'Create Directory Views Failed';
-							}
+	public function updated(){
+		\$this->load->view('frontend/".$insert_data['k0']."/update');
+	}
+
+}";
+						$my_file = APPPATH."/controllers/frontend/".ucwords($insert_data['k0']).".php";
+						$handle = fopen($my_file, 'w') or die('Cannot open file:  '.$my_file);
+						fwrite($handle, $string);
+						$file_controller_frontend = fclose($handle);
+						chmod($my_file, 01777);
+						if($file_controller_frontend){
+							$return = 'Create Frontend Controllers Done';
 						}else{
-							$return = 'Create Directory Controller Frontend Done But Controller Backend Failed';
+							$return = 'Create Frontend Controllers Failed';
 						}
 					}else{
-						$return = 'Create Directory Controller Frontend Failed';
+						$return = 'Create Directory Views Failed';
 					}
 				}else{
 					$return = "Success Insert Category Menu First on ".$_GET['category']." And Failed Insert Sample Data";
