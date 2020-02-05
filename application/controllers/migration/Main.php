@@ -224,6 +224,117 @@ class ".$insert_data['k0']." extends API_Controller {
 						chmod($my_file, 01777);
 						if($file_controller_frontend){
 							$return = 'Create Frontend Controllers Done';
+
+							// Created Controller Backend
+							$string = "<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+require_once APPPATH . 'libraries/API_Controller.php';
+
+class ".$insert_data['k0']." extends API_Controller {
+
+    function __contruct(){
+        parent::__construct();
+        \$this->load->database();
+    }
+
+	public function index(\$category = '".$insert_data['k0']."')
+	{
+		\$this->load->helper('api_helper');
+		header(\"Access-Control-Allow-Origin: *\");
+
+		// API Configuration
+		\$this->_apiConfig([
+			'methods' => ['GET'],
+        ]);
+
+        if(isset(\$_GET['search']['value'])){
+            \$search = \"and JSON_SEARCH(UPPER(tm_data.child_value), 'all', UPPER('%\".\$_GET['search']['value'].\"%')) IS NOT NULL\";
+        }else{
+            \$search = \"\";
+        }
+
+        \$query_count = \$this->db->query(
+            \"SELECT 
+                count(tm_data.child_id) as recordsTotal
+            FROM
+                tm_data
+            WHERE
+                JSON_EXTRACT(tm_data.child_value, \\\"\$.k0\\\") = '\".\$category.\"' and
+                deleted_by = '0'
+                \".\$search.\"
+            \"
+        );
+
+        \$result_count = \$query_count->row_array();
+
+        \$query = \$this->db->query(
+        \"SELECT
+			tm_data.child_id as id,";
+			for($x=1 ;$x <= $_GET['key']; $x++){
+				$string .="
+				JSON_UNQUOTE(
+					JSON_EXTRACT(tm_data.child_value, \\\"\$.k".$x."\\\")
+				) as k".$x.",
+				";
+			}
+			$string .="`text`
+        FROM
+            tm_data 
+        WHERE
+            JSON_EXTRACT(tm_data.child_value, \\\"\$.k0\\\") = '\".\$category.\"' and
+            tm_data.deleted_by = '0'
+            \".\$search.\"
+        LIMIT 
+            \".\$_GET['length'].\"
+        OFFSET
+            \".\$_GET['start'].\"
+        \"
+        );
+
+		\$result = \$query->result_array();
+
+        foreach(\$result as \$key => \$value){
+            \$datatables[\$key] = [
+                ";
+			for($x=1 ;$x <= $_GET['key']; $x++){
+				$string .="\$value['k".$x."'],";
+			}
+			$string .="
+			\"<a href=\\\"\".base_url('/frontend/".$insert_data['k0']."/update/'.my_simple_crypt(\$value['id'],'e')).\"\\\"<button class=\\\"btn btn-primary btn-sm\\\">Edit</button></a> <a onclick=\\\"return confirm('Anda Yakin Menghapus Data \".\$value['k1'].\"?')\\\" href=\\\"\".base_url('/backend/".$insert_data['k0']."/delete/'.my_simple_crypt(\$value['id'],'e')).\"\\\"<button class=\\\"btn btn-primary btn-sm\\\">Delete</button></a>\"
+            ];
+        }
+
+        if(\$result){
+            \$status = true;
+            \$json = \$datatables;
+            \$recordsTotal = \$result_count['recordsTotal'];
+        }else{
+            \$status = false;
+            \$json[0] = [\"0\",\"Failed Catching Data\"];
+            \$recordsTotal = \"0\";
+        }
+
+        // return data
+		\$this->api_return(
+			[
+                'draw'  => \$_GET['draw'],
+				'status' => \$status,
+                'recordsTotal' => \$recordsTotal,
+                'recordsFiltered' => \$recordsTotal,
+                'data'  => \$json
+			],
+		200);
+	}
+
+}";
+
+						$my_file = APPPATH."/controllers/backend/".ucwords($insert_data['k0']).".php";
+						$handle = fopen($my_file, 'w') or die('Cannot open file:  '.$my_file);
+						fwrite($handle, $string);
+						$file_controller_frontend = fclose($handle);
+						chmod($my_file, 01777);
+
 						}else{
 							$return = 'Create Frontend Controllers Failed';
 						}
