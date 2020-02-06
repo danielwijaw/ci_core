@@ -13,10 +13,30 @@ class main extends API_Controller {
         ];
 		$this->load->view('frontend/main/index', $data);
     }
+
+    public function admin()
+	{
+        $data = [
+            'root_data' => '/frontend/main/administrator'
+        ];
+		$this->load->view('frontend/main/base', $data);
+    }
     
     // Ajax
     public function first(){
-        $this->load->view('frontend/main/first');
+        $this->load->view('frontend/main/main');
+    }
+
+    public function administrator(){
+        $this->load->view('frontend/main/admin');
+    }
+
+    public function sidebar(){
+        $this->load->view('frontend/main/sidebar');
+    }
+    
+    public function topbar(){
+        $this->load->view('frontend/main/topbar');
     }
     
     // Error
