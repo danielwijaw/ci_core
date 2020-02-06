@@ -164,8 +164,8 @@ class main extends API_Controller {
 					$return = "Success Insert Category Menu First on ".$_GET['category'].", Success Insert Sample Data And Doing Generate File";
 
 					// Creating Directory Views
-					$mkdir_views = mkdir(APPPATH."/views/".$insert_data['k0'], 01777);
-					chmod(APPPATH."/views/".$insert_data['k0'], 01777);
+					$mkdir_views = mkdir(APPPATH."/views/frontend/".$insert_data['k0'], 01777);
+					chmod(APPPATH."/views/frontend/".$insert_data['k0'], 01777);
 
 					if($mkdir_views){
 						$return = 'Create Directory Views Done';
@@ -214,6 +214,20 @@ class ".$insert_data['k0']." extends API_Controller {
 
 	public function updated(){
 		\$this->load->view('frontend/".$insert_data['k0']."/update');
+	}
+
+	// Configuration Name Key
+	private function name_key(\$key){";
+		for($x=1 ;$x <= $_GET['key']; $x++){
+			$string .= "
+		if(\$key == 'k".$x."')
+		{
+			\$key = 'k".$x."';
+		}";
+		}
+		$string .="
+
+		return \$key;
 	}
 
 }";
