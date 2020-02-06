@@ -150,7 +150,7 @@ class main extends API_Controller {
 				for($x=1 ;$x <= $_GET['key']; $x++){
 					// echo $x;
 					$insert_data["k".$x] 			= "01";
-					$insert_data["k".$x."_text"] 	= "01";
+					// $insert_data["k".$x."_text"] 	= "01";
 				}
 
 				$data_sample = array(
@@ -205,19 +205,28 @@ class ".$insert_data['k0']." extends API_Controller {
 	
 	// Ajax
 	public function main(){
-		\$this->load->view('frontend/".$insert_data['k0']."/main');
+		\$data = [
+			'controller' => \$this
+		];
+		\$this->load->view('frontend/".$insert_data['k0']."/main', \$data);
 	}
 
 	public function created(){
-		\$this->load->view('frontend/".$insert_data['k0']."/create');
+		\$data = [
+			'controller' => \$this
+		];
+		\$this->load->view('frontend/".$insert_data['k0']."/create', \$data);
 	}
 
 	public function updated(){
-		\$this->load->view('frontend/".$insert_data['k0']."/update');
+		\$data = [
+			'controller' => \$this
+		];
+		\$this->load->view('frontend/".$insert_data['k0']."/update', \$data);
 	}
 
 	// Configuration Name Key
-	private function name_key(\$key){";
+	public function name_key(\$key){";
 		for($x=1 ;$x <= $_GET['key']; $x++){
 			$string .= "
 		if(\$key == 'k".$x."')
@@ -375,7 +384,7 @@ class ".$insert_data['k0']." extends API_Controller {
 		
 		if(!isset(\$cookie)){
 			\$cookie = [
-				'id' => '9191919191'
+				'id' => 'Z3A1L2w2ZlA0bEtmUEgrS0NPbmZUZz09'
 			];
 		}
 
@@ -417,7 +426,7 @@ class ".$insert_data['k0']." extends API_Controller {
 		
 		if(!isset(\$cookie)){
 			\$cookie = [
-				'id' => '9191919191'
+				'id' => 'Z3A1L2w2ZlA0bEtmUEgrS0NPbmZUZz09'
 			];
 		}
 
@@ -461,7 +470,7 @@ class ".$insert_data['k0']." extends API_Controller {
 		
 		if(!isset(\$cookie)){
 			\$cookie = [
-				'id' => '9191919191'
+				'id' => 'Z3A1L2w2ZlA0bEtmUEgrS0NPbmZUZz09'
 			];
 		}
 
@@ -601,6 +610,73 @@ class ".$insert_data['k0']." extends API_Controller {
 							fwrite($handle, $string);
 							$file_index_frontend = fclose($handle);
 							chmod($my_file, 01777);
+
+							if($file_index_frontend){
+								$return = 'Create View Index Done';
+
+								// Created Base Main
+								$string = "<link href=\"<?php echo base_url() ?>public/css/datatables.min.css\" rel=\"stylesheet\" type=\"text/css\">
+<script src=\"<?php echo base_url() ?>public/js/datatables.min.js\"></script>
+<div class=\"col-xl-12 col-lg-12\">
+    <div class=\"card shadow mb-4\">
+        <!-- Card Header -->
+        <div class=\"card-header py-3 d-flex flex-row align-items-center justify-content-between\">
+            <h6 class=\"m-0 font-weight-bold text-primary\">".$insert_data['k0_text']."</h6>
+        </div>
+        <!-- Card Body -->
+        <div class=\"card-body\">
+            <a href=\"<?php echo base_url('/frontend/".$insert_data['k0']."/create') ?>\">
+                <button type=\"button\" class=\"btn btn-primary btn-sm\">Tambah Data</button>
+            </a>
+            <br/><br/>
+            <table id=\"datatables_".$insert_data['k0']."\" class=\"display\" style=\"width:100%\">
+                <thead>
+                    <tr>
+						<th>Text</th>";
+						for($x=1 ;$x <= $_GET['key']; $x++){
+							$string .="
+						<th><?php echo \$controller->name_key('k".$x."') ?></th>
+							";
+						}
+						$string .="
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th>Text</th>";
+						for($x=1 ;$x <= $_GET['key']; $x++){
+							$string .="
+						<th><?php echo \$controller->name_key('k".$x."') ?></th>
+							";
+						}
+						$string .="
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+\$(document).ready(function() {
+    \$('#datatables_".$insert_data['k0']."').DataTable({
+        \"processing\": true,
+        \"serverSide\": true,
+        \"ajax\"      : \"<?php echo base_url('backend/".$insert_data['k0']."/') ?>\"
+    });
+} );
+</script>";
+
+								$my_file = APPPATH."views/frontend/".$insert_data['k0']."/main.php";
+								$handle = fopen($my_file, 'w') or die('Cannot open file:  '.$my_file);
+								fwrite($handle, $string);
+								$file_index_frontend = fclose($handle);
+								chmod($my_file, 01777);
+									
+								}else{
+									$return = 'Create View Main Failed';
+								}
 								
 							}else{
 								$return = 'Create View Index Failed';
