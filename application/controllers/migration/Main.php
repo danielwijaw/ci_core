@@ -353,7 +353,7 @@ class ".$insert_data['k0']." extends API_Controller {
             \$recordsTotal = \$result_count['recordsTotal'];
         }else{
             \$status = false;
-            \$json[0] = [\"0\",\"Failed Catching Data\"];
+            \$json[0] = [\"0\",";for($x=1 ;$x <= $_GET['key']; $x++){ $string .="\"Failed Catching Data\","; }$string .="\"Failed Catching Data\"];
             \$recordsTotal = \"0\";
         }
 
