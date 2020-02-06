@@ -158,7 +158,8 @@ class main extends API_Controller {
 					'created_by' 	=> '777999777'
 				);
 				
-				$insert_sample = $this->db->insert('tm_data', $data_sample);
+				// $insert_sample = $this->db->insert('tm_data', $data_sample);
+				$insert_sample = true;
 
 				if($insert_sample){
 					$return = "Success Insert Category Menu First on ".$_GET['category'].", Success Insert Sample Data And Doing Generate File";
@@ -195,10 +196,10 @@ class ".$insert_data['k0']." extends API_Controller {
 		\$this->load->view('frontend/".$insert_data['k0']."/index', \$data);
 	}
 
-	public function update()
+	public function update(\$id)
 	{
 		\$data = [
-			'root_data' => '/frontend/".$insert_data['k0']."/updated'
+			'root_data' => '/frontend/".$insert_data['k0']."/updated/'.\$id
 		];
 		\$this->load->view('frontend/".$insert_data['k0']."/index', \$data);
 	}
@@ -218,7 +219,7 @@ class ".$insert_data['k0']." extends API_Controller {
 		\$this->load->view('frontend/".$insert_data['k0']."/create', \$data);
 	}
 
-	public function updated(){
+	public function updated(\$id){
 		\$data = [
 			'controller' => \$this
 		];
@@ -483,7 +484,7 @@ class ".$insert_data['k0']." extends API_Controller {
         \$this->db->where('child_id', my_simple_crypt(\$id, 'd'));
         \$update = \$this->db->update('tm_data', \$data);
 
-        if(\$insert){
+        if(\$update){
             \$status = true;
             \$json = \"Success Update Data\";
             redirect('/frontend/".$insert_data['k0']."/index');
@@ -499,7 +500,57 @@ class ".$insert_data['k0']." extends API_Controller {
 				\"results\" => \$json,
 			],
 		200);
-    }
+	}
+	
+	public function get_id(\$id)
+	{
+        \$this->load->helper('api_helper');
+        header(\"Access-Control-Allow-Origin: *\");
+
+		// API Configuration
+		\$this->_apiConfig([
+			'methods' => ['GET'],
+		]);
+		
+		\$query = \$this->db->query(
+			\"SELECT
+				tm_data.child_id as id,";
+				for($x=1 ;$x <= $_GET['key']; $x++){
+					$string .="
+					JSON_UNQUOTE(
+						JSON_EXTRACT(tm_data.child_value, \\\"\$.k".$x."\\\")
+					) as k".$x.",
+					";
+				}
+				$string .="'text'
+			FROM
+				tm_data 
+			WHERE
+				tm_data.child_id = '\".my_simple_crypt(\$id, 'd').\"' and
+				tm_data.deleted_by = '0'
+			\"
+			);
+	
+			\$result = \$query->row_array();
+
+			\$result['id'] = my_simple_crypt(\$result['id'], 'e');
+			
+			if(\$result){
+				\$status = true;
+				\$json = \$result;
+			}else{
+				\$status = false;
+				\$json = \"Failed Catching Data\";
+			}
+	
+			// return data
+			\$this->api_return(
+				[
+					'status' => \$status,
+					\"results\" => \$json,
+				],
+			200);
+	}
 
 }";
 
@@ -720,6 +771,66 @@ class ".$insert_data['k0']." extends API_Controller {
 										fwrite($handle, $string);
 										$file_create_frontend = fclose($handle);
 										chmod($my_file, 01777);
+
+										if($file_create_frontend){
+										$return = 'Create View Create Done';
+	
+									// Created Base Creatte
+										$string = "<div class=\"col-xl-12 col-lg-12\">
+	<?php 
+		\$data = current_url();
+		\$pecah = explode(\"/\", \$data);
+		\$json = file_get_contents(base_url('backend/".$insert_data['k0']."/get_id/'.\$pecah[6]));
+		\$obj = json_decode(\$json, true);
+		\$obj = \$obj['results'];
+	?>									
+    <div class=\"card shadow mb-4\">
+        <!-- Card Header -->
+        <div class=\"card-header py-3 d-flex flex-row align-items-center justify-content-between\">
+            <h6 class=\"m-0 font-weight-bold text-primary\">Perbarui Data ".$insert_data['k0_text']." <?php echo \$obj['k1'] ?> </h6>
+        </div>
+        <!-- Card Body -->
+        <div class=\"card-body\">
+            <div class=\"col-md-12\">
+                <form method=\"POST\" action=\"<?php echo base_url('/backend/".$insert_data['k0']."/update/'.\$pecah[6]) ?>\">   
+                    <input type=\"hidden\" name=\"<?php echo \$this->security->get_csrf_token_name();?>\" value=\"<?php echo \$this->security->get_csrf_hash();?>\">
+                    <input type=\"hidden\" class=\"form-control\" name=\"result[k0]\" value=\"".$insert_data['k0']."\" required>
+                    <input type=\"hidden\" class=\"form-control\" name=\"result[k0_text]\" value=\"".$insert_data['k0_text']."\" required>";
+						for($x=1 ;$x <= $_GET['key']; $x++){
+							$string .="
+					<div class=\"form-group\">
+						<div class=\"row\">
+							<div class=\"col-md-3\">
+                                <label><?php echo \$controller->name_key('k".$x."') ?></label>
+                            </div>
+                            <div class=\"col-md-9\">
+                                <input type=\"text\" class=\"form-control\" name=\"result[k".$x."]\" placeholder=\"Masukan <?php echo \$controller->name_key('k".$x."') ?>\" value=\"<?php echo \$obj['k".$x."'] ?>\" required>
+							</div>
+						</div>
+					</div>
+							";
+						}
+						$string .="
+                    <div class=\"form-group\">
+                        <input class=\"btn btn-primary\" type=\"submit\" value=\"Perbarui Data\">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>";
+	
+											$my_file = APPPATH."views/frontend/".$insert_data['k0']."/update.php";
+											$handle = fopen($my_file, 'w') or die('Cannot open file:  '.$my_file);
+											fwrite($handle, $string);
+											$file_edit_frontend = fclose($handle);
+											chmod($my_file, 01777);
+
+											$return = 'Success Generate Basic CRUD , Happy Code :)';
+												
+										}else{
+											$return = 'Create View Edit Failed';
+										}
 											
 									}else{
 										$return = 'Create View Create Failed';
