@@ -431,7 +431,7 @@ class ".$insert_data['k0']." extends API_Controller {
 		}
 
         \$data = array(
-            'child_value' => JSON_ENCODE(\$_POST),
+            'child_value' => JSON_ENCODE(\$_POST['result']),
             'created_by' => my_simple_crypt(\$cookie['id'], 'd')
         );
     
@@ -475,7 +475,7 @@ class ".$insert_data['k0']." extends API_Controller {
 		}
 
         \$data = array(
-            'child_value' => JSON_ENCODE(\$result),
+            'child_value' => JSON_ENCODE(\$_POST['result']),
             'updated_at' => date('Y-m-d H:i:s'),
             'updated_by' => my_simple_crypt(\$cookie['id'], 'd')
         );
@@ -671,8 +671,59 @@ class ".$insert_data['k0']." extends API_Controller {
 								$my_file = APPPATH."views/frontend/".$insert_data['k0']."/main.php";
 								$handle = fopen($my_file, 'w') or die('Cannot open file:  '.$my_file);
 								fwrite($handle, $string);
-								$file_index_frontend = fclose($handle);
+								$file_main_frontend = fclose($handle);
 								chmod($my_file, 01777);
+
+								if($file_main_frontend){
+									$return = 'Create View Main Done';
+	
+									// Created Base Creatte
+									$string = "<div class=\"col-xl-12 col-lg-12\">
+    <div class=\"card shadow mb-4\">
+        <!-- Card Header -->
+        <div class=\"card-header py-3 d-flex flex-row align-items-center justify-content-between\">
+            <h6 class=\"m-0 font-weight-bold text-primary\">Tambah Data ".$insert_data['k0_text']."</h6>
+        </div>
+        <!-- Card Body -->
+        <div class=\"card-body\">
+            <div class=\"col-md-12\">
+                <form method=\"POST\" action=\"<?php echo base_url('/backend/".$insert_data['k0']."/create') ?>\">   
+                    <input type=\"hidden\" name=\"<?php echo \$this->security->get_csrf_token_name();?>\" value=\"<?php echo \$this->security->get_csrf_hash();?>\">
+                    <input type=\"hidden\" class=\"form-control\" name=\"result[k0]\" value=\"".$insert_data['k0']."\" required>
+                    <input type=\"hidden\" class=\"form-control\" name=\"result[k0_text]\" value=\"".$insert_data['k0_text']."\" required>";
+						for($x=1 ;$x <= $_GET['key']; $x++){
+							$string .="
+					<div class=\"form-group\">
+						<div class=\"row\">
+							<div class=\"col-md-3\">
+                                <label><?php echo \$controller->name_key('k".$x."') ?></label>
+                            </div>
+                            <div class=\"col-md-9\">
+                                <input type=\"text\" class=\"form-control\" name=\"result[k".$x."]\" placeholder=\"Masukan <?php echo \$controller->name_key('k".$x."') ?>\" required>
+							</div>
+						</div>
+					</div>
+							";
+						}
+						$string .="
+                    <div class=\"form-group\">
+                        <input class=\"btn btn-primary\" type=\"submit\" value=\"Tambah Data\">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>";
+	
+										$my_file = APPPATH."views/frontend/".$insert_data['k0']."/create.php";
+										$handle = fopen($my_file, 'w') or die('Cannot open file:  '.$my_file);
+										fwrite($handle, $string);
+										$file_create_frontend = fclose($handle);
+										chmod($my_file, 01777);
+											
+									}else{
+										$return = 'Create View Create Failed';
+									}
 									
 								}else{
 									$return = 'Create View Main Failed';
