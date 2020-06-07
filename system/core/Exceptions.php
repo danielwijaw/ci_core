@@ -156,26 +156,6 @@ class CI_Exceptions {
 	 */
 	public function show_error($heading, $message, $template = 'error_general', $status_code = 500)
 	{
-		$actual_link = "http" . (($_SERVER['SERVER_PORT'] == 443) ? "s" : "") . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-		
-		if (strpos($actual_link, 'backend') !== false) {
-		
-			header('Cache-Control: no-cache, must-revalidate');
-			header('Content-type: application/json');
-			header("HTTP/1.1 500 Internal Server Error");
-	
-			echo json_encode(
-				array(
-					'status' => FALSE,
-					'error' => 'Internal Server Error',
-					'message' => $message,
-					'results' => null
-				)
-			);
-
-			exit;
-		}
-		
 		$templates_path = config_item('error_views_path');
 		if (empty($templates_path))
 		{
@@ -198,6 +178,27 @@ class CI_Exceptions {
 		{
 			ob_end_flush();
 		}
+		
+		$actual_link = "http" . (($_SERVER['SERVER_PORT'] == 443) ? "s" : "") . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+		
+		if (strpos($actual_link, 'backend') !== false) {
+		
+			header('Cache-Control: no-cache, must-revalidate');
+			header('Content-type: application/json');
+			header("HTTP/1.1 500 Internal Server Error");
+	
+			echo json_encode(
+				array(
+					'status' => FALSE,
+					'error' => 'Internal Server Error',
+					'message' => $message,
+					'results' => null
+				)
+			);
+
+			exit;
+		}
+		
 		ob_start();
 		include($templates_path.$template.'.php');
 		$buffer = ob_get_contents();
@@ -233,6 +234,26 @@ class CI_Exceptions {
 		if (ob_get_level() > $this->ob_level + 1)
 		{
 			ob_end_flush();
+		}
+
+		$actual_link = "http" . (($_SERVER['SERVER_PORT'] == 443) ? "s" : "") . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+		
+		if (strpos($actual_link, 'backend') !== false) {
+		
+			header('Cache-Control: no-cache, must-revalidate');
+			header('Content-type: application/json');
+			header("HTTP/1.1 500 Internal Server Error");
+	
+			echo json_encode(
+				array(
+					'status' => FALSE,
+					'error' => 'Internal Server Error',
+					'message' => $message,
+					'results' => null
+				)
+			);
+
+			exit;
 		}
 
 		ob_start();
