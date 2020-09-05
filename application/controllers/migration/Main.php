@@ -7,7 +7,38 @@ class main extends API_Controller {
 
     public function __construct(){
         parent::__construct();
-    }
+	}
+	
+	private function check_database()
+    {
+        
+        ini_set('display_errors', 'Off');
+        
+        //  Load the database config file.
+        if(file_exists($file_path = APPPATH.'config/database.php'))
+        {
+            include($file_path);
+        }
+        
+        $config = $db[$active_group];
+        
+        //  Check database connection if using mysqli driver
+        if( $config['dbdriver'] === 'mysqli' )
+        {
+            $mysqli = new mysqli( $config['hostname'] , $config['username'] , $config['password'] , $config['database'] );
+            if( !$mysqli->connect_error )
+            {
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    } 
 
 	public function index()
 	{
@@ -36,7 +67,14 @@ class main extends API_Controller {
 
 	public function connection()
 	{
-        $this->load->database();
+		if(!$this->check_database()){
+			$status = false;
+            $dbStatus = "Database Down !";
+        }else{ 
+			$status = true;
+            $dbStatus = "Database Okay";
+		}
+		
 		header("Access-Control-Allow-Origin: *");
 
 		// API Configuration
@@ -47,8 +85,8 @@ class main extends API_Controller {
 		// return data
 		$this->api_return(
 			[
-				'status' => true,
-				"result" => "Connection To Database Oke",
+				'status' => $status,
+				"result" => $dbStatus,
 			],
 		200);
 	}

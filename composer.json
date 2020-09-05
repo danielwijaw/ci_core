@@ -18,7 +18,9 @@
 	"require": {
 		"php": ">=5.3.7",
 		"ctechhindi/codeigniter-api": "dev-master",
-		"phpoffice/phpspreadsheet": "^1.10"
+		"phpoffice/phpspreadsheet": "^1.10",
+		"robmorgan/phinx": "^0.12.4",
+		"vlucas/phpdotenv": "^5.1"
 	},
 	"suggest": {
 		"paragonie/random_compat": "Provides better randomness in PHP 5.x"
@@ -26,5 +28,8 @@
 	"require-dev": {
 		"mikey179/vfsstream": "1.1.*",
 		"phpunit/phpunit": "4.* || 5.*"
+	},
+	"scripts": {
+		"startServe": "php -S localhost:8090 -t ."
 	}
 }
